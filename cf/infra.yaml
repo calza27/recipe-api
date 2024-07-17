@@ -13,6 +13,8 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: pullyblank-recipe-bucket
+      VersioningConfiguration: 
+        Status: Enabled
 
   BucketNameParam:
     Type: AWS::SSM::Parameter
