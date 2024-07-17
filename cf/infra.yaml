@@ -12,7 +12,7 @@ Resources:
   StorageBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: recipe-bucket
+      BucketName: pullyblank-recipe-bucket
 
   BucketNameParam:
     Type: AWS::SSM::Parameter

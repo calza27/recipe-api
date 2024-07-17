@@ -7,7 +7,7 @@ info:
   contact: {}
   version: "1.0"
 servers:
-  - url: https://4l1kzy0s2i.execute-api.ap-southeast-2.amazonaws.com/api
+  - url: https://6maydcc8u3.execute-api.ap-southeast-2.amazonaws.com/api
     description: Recipe dev server
 x-amazon-apigateway-request-validators:
   basic:

@@ -6,9 +6,6 @@ Parameters:
   S3BucketArn:
     Type: AWS::SSM::Parameter::Value<String>
     Default: /recipe-api-processor/s3/arn
-  DatabaseArn:
-    Type: AWS::SSM::Parameter::Value<String>
-    Default: /recipe-api-processor/ddb/arn
 
 Globals:
   Function:
@@ -70,18 +67,6 @@ Resources:
                 Resource:
                   - !Ref S3BucketArn
                   - !Sub '${S3BucketArn}/*'
-        - PolicyName: dynamoDB-access-policy
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - dynamodb:GetItem
-                  - dynamodb:PutItem
-                  - dynamodb:Scan
-                  - dynamodb:Query
-                Resource:
-                  - !Ref DatabaseArn
         - PolicyName: ssm-access-policy
           PolicyDocument:
             Version: '2012-10-17'
@@ -95,8 +80,8 @@ Resources:
   UploadFunc:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: 'recipe-api-processor-opload'
-      CodeUri: ../cmd/bin/opload
+      FunctionName: 'recipe-api-processor-upload'
+      CodeUri: ../cmd/bin/upload
       Role:
         !GetAtt FunctionRole.Arn
 
@@ -109,7 +94,7 @@ Resources:
   UploadFuncArnParam:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: '/recipe-api-processor/function/opload/arn'
+      Name: '/recipe-api-processor/function/upload/arn'
       Type: String
       Value: !Sub '${UploadFunc.Arn}'
       Description: ARN for the Upload function handler

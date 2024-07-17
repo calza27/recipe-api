@@ -64,5 +64,4 @@ sam deploy \
   --region "ap-southeast-2" \
   --profile "${profile}" || die "failed to deploy stack "$STACK_NAME"-gateway"
 
-echo "~~ cleaning up"
-rm -rf ./cmd/bin/
+die "~~ cleaning up" 0
