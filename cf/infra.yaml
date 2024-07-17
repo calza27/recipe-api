@@ -1,0 +1,39 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: recipe-api > Infra for the API and Lambdas
+
+Parameters:
+  FileUrlDuration:
+    Type: String
+    Default: 60s
+    Description: Duration that a file URL is valid for
+
+Resources:
+  StorageBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: recipe-bucket
+
+  BucketNameParam:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: '/recipe-api-processor/s3/name'
+      Type: String
+      Value: !Ref StorageBucket
+      Description: Name of the S3 bucket to store exports in
+
+  BucketArnParam:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: '/recipe-api-processor/s3/arn'
+      Type: String
+      Value: !GetAtt StorageBucket.Arn
+      Description: ARN of the S3 bucket to store exports in
+
+  FileUrlDurationParam:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: '/recipe-api-processor/s3/url-duration'
+      Type: String
+      Value: !Ref FileUrlDuration
+      Description: Name of the S3 bucket to store exports in

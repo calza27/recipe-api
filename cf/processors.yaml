@@ -1,0 +1,159 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: recipe-api > Public API processing to serve Recipe file accessors
+
+Parameters:
+  S3BucketArn:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /recipe-api-processor/s3/arn
+  DatabaseArn:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /recipe-api-processor/ddb/arn
+
+Globals:
+  Function:
+    Handler: bootstrap
+    Runtime: provided.al2
+    Timeout: 30
+    MemorySize: 128
+    AutoPublishAlias: live
+      
+Resources:
+  FunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Description: Lambda role for api-processors
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+      Policies:
+        - PolicyName: logs-policy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:PutLogEvents
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                Resource:
+                  - arn:aws:logs:*:*:*
+        - PolicyName: network-access-policy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ec2:DescribeNetworkInterfaces
+                  - ec2:CreateNetworkInterface
+                  - ec2:DeleteNetworkInterface
+                Resource:
+                  - '*'
+        - PolicyName: bucket-access-policy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                  - s3:GetObject
+                  - s3:ListBucket
+                  - s3:DeleteObject
+                Resource:
+                  - !Ref S3BucketArn
+                  - !Sub '${S3BucketArn}/*'
+        - PolicyName: dynamoDB-access-policy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:PutItem
+                  - dynamodb:Scan
+                  - dynamodb:Query
+                Resource:
+                  - !Ref DatabaseArn
+        - PolicyName: ssm-access-policy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ssm:GetParameter
+                Resource:
+                  - "*"
+
+  UploadFunc:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: 'recipe-api-processor-opload'
+      CodeUri: ../cmd/bin/opload
+      Role:
+        !GetAtt FunctionRole.Arn
+
+  UploadFuncLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${UploadFunc}"
+      RetentionInDays: 365
+
+  UploadFuncArnParam:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: '/recipe-api-processor/function/opload/arn'
+      Type: String
+      Value: !Sub '${UploadFunc.Arn}'
+      Description: ARN for the Upload function handler
+
+  ListFunc:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: 'recipe-api-processor-list'
+      CodeUri: ../cmd/bin/list
+      Role:
+        !GetAtt FunctionRole.Arn
+
+  ListFuncLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${ListFunc}"
+      RetentionInDays: 365
+
+  ListFuncArnParam:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: '/recipe-api-processor/function/list/arn'
+      Type: String
+      Value: !Sub '${ListFunc.Arn}'
+      Description: ARN for the List function handler
+
+  GetFileUrlFunc:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: 'recipe-api-processor-getFileUrl'
+      CodeUri: ../cmd/bin/getFileUrl
+      Role:
+        !GetAtt FunctionRole.Arn
+
+  GetFileUrlFuncLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${GetFileUrlFunc}"
+      RetentionInDays: 365
+
+  GetFileUrlFuncArnParam:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: '/recipe-api-processor/function/getFileUrl/arn'
+      Type: String
+      Value: !Sub '${GetFileUrlFunc.Arn}'
+      Description: ARN for the Get File URL function handler
