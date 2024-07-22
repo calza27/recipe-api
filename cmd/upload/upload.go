@@ -5,6 +5,7 @@ import (
 	"Recipe-API/internal/utils"
 	"bytes"
 	"context"
+	"encoding/base64"
 	"fmt"
 
 	"github.com/aws/aws-lambda-go/events"
@@ -23,7 +24,10 @@ func HandleRequest(ctx context.Context, request events.APIGatewayProxyRequest) (
 	if fileData == "" {
 		return utils.BuildResponse("No request body supplied!", 400, nil), nil
 	}
-	fileBytes := []byte(fileData)
+	fileBytes, err := base64.StdEncoding.DecodeString(fileData)
+	if err != nil {
+		return utils.BuildResponse("Error decoding base64 string", 500, nil), nil
+	}
 
 	s3BucketName, err := GetS3BucketeName(ctx)
 	if err != nil {
