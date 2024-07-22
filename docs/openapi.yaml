@@ -91,7 +91,7 @@ paths:
       description: "Get the URL to access the file for the given file name"
       operationId: getFileUrl
       parameters:
-        - name: version
+        - name: file
           in: path
           description: the version of the file to get the access URL for
           required: true
