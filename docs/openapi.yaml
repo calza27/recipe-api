@@ -85,13 +85,13 @@ paths:
         type: "aws_proxy"
         uri:
           Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/{{resolve:ssm:/recipe-api-processor/function/list/arn}}:live/invocations"
-  /recipe/getFileUrl/{file}:
+  /recipe/getFileUrl/{version}:
     get:
       summary: Get the URL to access the file for the given file name
       description: "Get the URL to access the file for the given file name"
       operationId: getFileUrl
       parameters:
-        - name: file
+        - name: version
           in: path
           description: the version of the file to get the access URL for
           required: true
