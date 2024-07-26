@@ -39,13 +39,14 @@ func errorResponse(message string, statusCode int, headers map[string][]string) 
 }
 
 var defaultHeaders = map[string][]string{
-	"Cache-Control":             {"no-store"},
-	"Content-Security-Policy":   {"frame-ancestors 'none'"},
-	"Strict-Transport-Security": {"max-age=31536000; includeSubDomains"},
-	"X-Content-Type-Options":    {"nosniff"},
-	"X-Frame-Options":           {"DENY"},
-	"Referrer-Policy":           {"no-referrer"},
-	"Permissions-Policy":        {""},
+	"Access-Control-Allow-Origin": {"*"},
+	"Cache-Control":               {"no-store"},
+	"Content-Security-Policy":     {"frame-ancestors 'none'"},
+	"Strict-Transport-Security":   {"max-age=31536000; includeSubDomains"},
+	"X-Content-Type-Options":      {"nosniff"},
+	"X-Frame-Options":             {"DENY"},
+	"Referrer-Policy":             {"no-referrer"},
+	"Permissions-Policy":          {""},
 }
 
 func buildResponseHeaders(customHeaders map[string][]string) map[string][]string {
