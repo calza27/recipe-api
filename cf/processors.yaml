@@ -10,7 +10,7 @@ Parameters:
 Globals:
   Function:
     Handler: bootstrap
-    Runtime: provided.al2
+    Runtime: provided.al2023
     Timeout: 30
     MemorySize: 128
     AutoPublishAlias: live
